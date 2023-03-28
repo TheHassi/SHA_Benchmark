@@ -50,16 +50,16 @@ struct timeval hash_mbedtls_gettimeofday(int sha_type, char *payload, size_t pay
 
         // printf("Ergebnis: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
     }
-
-    /* printf("mbedtls: ");
+/* 
+    printf("mbedtls: ");
     for (int i = 0; i < sizeof(SHA_result); i++)
     {
         char str[3];
         sprintf(str, "%02x", (int)SHA_result[i]);
         printf("%s", str);
     }
-    printf("\n"); */
-
+    printf("\n"); 
+ */
     return tval_result;
 }
 
@@ -214,8 +214,67 @@ uint32_t hash_mbedtls_CCOUNT(int sha_type, char *payload, size_t payload_len, lo
     {
         mbedtls_md_init(&ctx);
         mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
+        mbedtls_md_starts(&ctx);
 
         RSR(CCOUNT, cc1);
+        mbedtls_md_update(&ctx, (const unsigned char *)payload, payload_len);
+        mbedtls_md_finish(&ctx, SHA_result);
+        RSR(CCOUNT, cc2);
+
+        if (i <= garbage)
+        {
+            mbedtls_md_free(&ctx);
+            continue;
+        }
+
+        result += cc2 - cc1 - fault;
+        /*
+        printf("Taktanzahl: ");
+        printf("%" PRIu32, result);
+        printf("\n");
+        */
+
+        mbedtls_md_free(&ctx);
+    }
+
+    /*
+    printf("mbedtls: ");
+    for (int i = 0; i < sizeof(SHA_result); i++)
+    {
+        char str[3];
+        sprintf(str, "%02x", (int)SHA_result[i]);
+        printf("%s", str);
+    }
+    printf("\n");
+    */
+
+    return result;
+}
+
+uint32_t hash_mbedtls_comp_CCOUNT(int sha_type, char *payload, size_t payload_len, long repeats, int garbage)
+{
+    uint32_t cc1, cc2, fault = 0, result = 0;
+
+    for (int i = 0; i < 1000; i++)
+    {
+        RSR(CCOUNT, cc1);
+        RSR(CCOUNT, cc2);
+        fault += cc2 - cc1;
+    }
+
+    fault = fault / 1000;
+
+    for (long i = 0; i < repeats + 1; i++)
+    {
+        RSR(CCOUNT, cc1);
+        mbedtls_md_context_t ctx;
+        mbedtls_md_type_t md_type = sha_type;
+        unsigned char SHA_result[32];
+
+        mbedtls_md_init(&ctx);
+        mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
+
+        
         mbedtls_md_starts(&ctx);
         mbedtls_md_update(&ctx, (const unsigned char *)payload, payload_len);
         mbedtls_md_finish(&ctx, SHA_result);

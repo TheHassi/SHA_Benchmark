@@ -5,3 +5,4 @@
 #include <inttypes.h>
 #include "test_mbedtls.h"
 #include "test_hal.h"
+#include "driver/periph_ctrl.h"

@@ -7,8 +7,11 @@ void handleErrors()
 
 void app_main(void)
 {
+    periph_module_enable(PERIPH_SHA_MODULE);
+
+    /* 
     char *text = "Hello SHA 256 from ESP32learning";
-    int size_mul = 1;
+    int size_mul = 15;
     size_t payload_len = strlen(text) * size_mul;
     char *payload = (char *)malloc(32 * size_mul + 1);
     for (int i = 0; i < payload_len; i += 32)
@@ -16,8 +19,9 @@ void app_main(void)
         memcpy(payload + i, text, 32);
     }
     memcpy(payload + payload_len, "\0", 1);
-
-    // char *payload = "abc";
+ */
+    char *payload = "Hello SHA 256 from ESP32learning";
+    size_t payload_len = strlen(payload);
 
     // printf("Payload: %s\n", payload);
     printf("Size of Payload: %d\n", strlen(payload));
@@ -31,7 +35,6 @@ void app_main(void)
     double per_cycle;
     double takte;
     uint32_t uint32_takte;
-
     /*
     // use mbedtls & gettimeofday()
     printf("\nmbedtls & gettimeofday()\n");
@@ -62,7 +65,17 @@ void app_main(void)
     uint32_takte = hash_mbedtls_CCOUNT(MBEDTLS_MD_SHA256, payload, payload_len, repeats, garbage);
     takte = (double)uint32_takte / ((double)(repeats - garbage));
     printf("Taktanzahl: %f\n", takte);
+
+    // use mbedtls & component CCOUNT complete
+    printf("\nmbedtls & component complete CCOUNT\n");
+    uint32_takte = hash_mbedtls_comp_CCOUNT(MBEDTLS_MD_SHA256, payload, payload_len, repeats, garbage);
+    takte = (double)uint32_takte / ((double)(repeats - garbage));
+    printf("Taktanzahl: %f\n", takte);
     */
-    hash_hal(SHA2_256, payload, payload_len);
+
+    // hash_hal(SHA2_256, payload, payload_len);
+    uint32_takte = hash_hal_comp(SHA2_256, payload, payload_len, repeats, garbage);
+    takte = (double)uint32_takte / ((double)(repeats - garbage));
+    printf("Taktanzahl: %f\n", takte);
     printf("DONE\n");
 }

@@ -12,3 +12,4 @@ struct timeval hash_mbedtls_gettimeofday(int sha_type, char *payload, size_t pay
 double hash_mbedtls_clock(int sha_type, char *payload, size_t payload_len, long repeats, int garbage);
 uint32_t hash_mbedtls_perfmon(int sha_type, char *payload, size_t payload_len, long repeats, int garbage);
 uint32_t hash_mbedtls_CCOUNT(int sha_type, char *payload, size_t payload_len, long repeats, int garbage);
+uint32_t hash_mbedtls_comp_CCOUNT(int sha_type, char *payload, size_t payload_len, long repeats, int garbage);
